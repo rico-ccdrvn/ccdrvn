@@ -54,9 +54,9 @@ if (hamburger && navLinks) {
 //   5. Paste them below.
 //
 const GOOGLE_FORM_ACTION  = 'YOUR_GOOGLE_FORM_ACTION_URL';  // ← Replace
-const ENTRY_NAME          = 'entry.XXXXXXXXXX';              // ← Replace
-const ENTRY_EMAIL         = 'entry.XXXXXXXXXX';              // ← Replace
-const ENTRY_PACKAGE       = 'entry.XXXXXXXXXX';              // ← Replace (optional)
+const ENTRY_NAME          = 'entry.1612076781';              // ← Replace
+const ENTRY_EMAIL         = 'entry.245605055';              // ← Replace
+const ENTRY_PACKAGE       = 'entry.390902137';              // ← Replace (optional)
 
 const overlay    = document.getElementById('modalOverlay');
 const pkgLabel   = document.getElementById('modalPackageName');
