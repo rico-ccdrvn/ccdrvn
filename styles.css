@@ -90,17 +90,32 @@ nav {
 .btn-nav {
   background: var(--accent) !important;
   color: #000 !important;
-  padding: 0.45rem 1.1rem !important;
+  padding: 0.55rem 1.3rem !important;
   border-radius: var(--r) !important;
   font-weight: 700 !important;
   font-family: 'Montserrat', sans-serif !important;
-  font-size: 0.825rem !important;
+  font-size: 0.9rem !important;
   letter-spacing: 0.02em !important;
   transition: background 0.2s !important;
 }
 .btn-nav:hover {
   background: var(--accent-dark) !important;
   color: #fff !important;
+}
+.btn-nav-white {
+  background: #fff !important;
+  color: #000 !important;
+  padding: 0.55rem 1.3rem !important;
+  border-radius: var(--r) !important;
+  font-weight: 700 !important;
+  font-family: 'Montserrat', sans-serif !important;
+  font-size: 0.9rem !important;
+  letter-spacing: 0.02em !important;
+  transition: background 0.2s, color 0.2s !important;
+}
+.btn-nav-white:hover {
+  background: #e0e0e0 !important;
+  color: #000 !important;
 }
 
 .hamburger {
@@ -889,7 +904,7 @@ footer {
     color: var(--text);
   }
   .nav-links li:last-child { border-bottom: none; padding-top: 1.5rem; }
-  .btn-nav {
+  .btn-nav, .btn-nav-white {
     padding: 0.7rem 1.5rem !important;
     font-size: 0.9rem !important;
   }
