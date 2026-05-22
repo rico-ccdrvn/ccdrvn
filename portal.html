@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Session Files | CC Driving Instruction</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* ── Portal-specific styles ── */
+    .portal-wrap {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 40px 1.25rem 80px;
+    }
+
+    .portal-heading {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 3px;
+    }
+
+    .portal-sub {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 28px;
+    }
+
+    /* date group */
+    .date-group { margin-bottom: 20px; }
+
+    .date-label {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* file rows */
+    .file-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 14px;
+      background: var(--bg-alt);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .file-row:nth-child(even) { background: var(--bg); }
+    .file-row:last-child { border-bottom: none; border-radius: 0 0 var(--r) var(--r); }
+
+    .file-icon { font-size: 1rem; width: 22px; text-align: center; flex-shrink: 0; opacity: 0.7; }
+
+    .file-info { flex: 1; min-width: 0; }
+
+    .file-name {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .file-meta { font-size: 0.7rem; color: var(--text-muted); margin-top: 2px; }
+
+    .dl-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: #00c07f;
+      color: #0b0b0d;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      padding: 5px 13px;
+      border-radius: 3px;
+      text-decoration: none;
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: opacity 0.15s;
+    }
+
+    .dl-btn:hover { opacity: 0.82; }
+
+    .expiry-note {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-align: center;
+      margin-top: 24px;
+    }
+
+    /* states */
+    .portal-state {
+      text-align: center;
+      padding: 64px 0;
+    }
+
+    .portal-state-icon { font-size: 2.2rem; margin-bottom: 14px; }
+
+    .portal-state-title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .portal-state-body {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      max-width: 320px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    .error-card {
+      background: #1a0505;
+      border: 1px solid #7a1a1a;
+      border-radius: var(--r);
+      padding: 28px 24px;
+      max-width: 380px;
+      margin: 0 auto;
+    }
+
+    .error-card .portal-state-title { color: #ff6b6b; }
+
+    .portal-spinner {
+      width: 26px;
+      height: 26px;
+      border: 2px solid var(--border);
+      border-top-color: #00c07f;
+      border-radius: 50%;
+      animation: pspin 0.75s linear infinite;
+      margin: 0 auto 18px;
+    }
+
+    @keyframes pspin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 500px) {
+      .file-row { flex-wrap: wrap; }
+      .dl-btn { width: 100%; justify-content: center; margin-top: 8px; padding: 8px 0; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <nav>
+    <a href="index.html" class="logo"><span class="cc">CC</span> Driving Instruction</a>
+    <ul class="nav-links" role="list">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="kingston.html">Kingston BDE</a></li>
+      <li><a href="belleville.html">Belleville BDE</a></li>
+      <li><a href="https://calendly.com/rico2/driving-lesson-clone" target="_blank" rel="noopener" class="btn-nav">Book Now</a></li>
+    </ul>
+    <button class="hamburger" aria-label="Toggle navigation" aria-expanded="false">☰</button>
+  </nav>
+</header>
+
+<main>
+  <div class="portal-wrap" id="portal">
+    <div class="portal-state" id="loading">
+      <div class="portal-spinner"></div>
+      <div class="portal-state-body">Loading your session files&hellip;</div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo"><span class="cc">CC</span> Driving Instruction</div>
+    <p class="footer-contact">Richard Cooke &mdash; Certified Driving Instructor</p>
+    <p class="footer-contact">
+      <a href="tel:3432636264">343&#8209;263&#8209;6264</a>
+      &nbsp;&middot;&nbsp;
+      <a href="mailto:rico@ccdrvn.com">rico@ccdrvn.com</a>
+    </p>
+    <p class="footer-contact">Greater Kingston &amp; Belleville, Ontario</p>
+    <p class="footer-copy">&copy; 2026 CC Driving Instruction. All rights reserved.</p>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+<script>
+  const WORKER = 'https://clearconnect-portal.rico-095.workers.dev';
+
+  function fmtSize(b) {
+    if (b < 1024) return b + ' B';
+    if (b < 1048576) return (b / 1024).toFixed(1) + ' KB';
+    if (b < 1073741824) return (b / 1048576).toFixed(1) + ' MB';
+    return (b / 1073741824).toFixed(2) + ' GB';
+  }
+
+  function fmtDate(iso) {
+    if (!iso) return '';
+    return new Date(iso).toLocaleDateString('en-CA', { year: 'numeric', month: 'short', day: 'numeric' });
+  }
+
+  function fileIcon(name) {
+    const ext = (name.split('.').pop() || '').toLowerCase();
+    if (['mp4','mov','avi','mkv'].includes(ext)) return '&#127909;';
+    if (ext === 'pdf') return '&#128196;';
+    if (['json','csv','txt','log'].includes(ext)) return '&#128202;';
+    if (['jpg','jpeg','png','webp'].includes(ext)) return '&#128444;';
+    return '&#128206;';
+  }
+
+  function groupByFolder(files) {
+    const groups = new Map();
+    for (const f of files) {
+      const parts = f.path.split('/');
+      const folder = parts.length > 1 ? parts[0] : 'Files';
+      if (!groups.has(folder)) groups.set(folder, []);
+      groups.get(folder).push({ ...f, name: parts[parts.length - 1] });
+    }
+    return groups;
+  }
+
+  function esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function renderFiles(data) {
+    const groups = groupByFolder(data.files);
+    let html = `
+      <div class="portal-heading">${esc(data.client_name || 'Session Files')}</div>
+      <div class="portal-sub">Session Recordings &amp; Reports</div>
+    `;
+
+    if (!data.files.length) {
+      html += `<div class="portal-state">
+        <div class="portal-state-icon">&#128193;</div>
+        <div class="portal-state-title">No files yet</div>
+        <div class="portal-state-body">No session files have been uploaded to this link yet.</div>
+      </div>`;
+    } else {
+      for (const [folder, files] of groups) {
+        html += `<div class="date-group">
+          <div class="date-label">${esc(folder)}</div>`;
+        for (const f of files) {
+          html += `<div class="file-row">
+            <div class="file-icon">${fileIcon(f.name)}</div>
+            <div class="file-info">
+              <div class="file-name">${esc(f.name)}</div>
+              <div class="file-meta">${fmtSize(f.size)}${f.uploaded ? ' &middot; ' + fmtDate(f.uploaded) : ''}</div>
+            </div>
+            <a class="dl-btn" href="${esc(f.url)}" download="${esc(f.name)}">&#8595; DOWNLOAD</a>
+          </div>`;
+        }
+        html += `</div>`;
+      }
+      html += `<div class="expiry-note">Download links expire in ${data.expires_in_days} days</div>`;
+    }
+
+    document.getElementById('portal').innerHTML = html;
+  }
+
+  function renderError(title, body) {
+    document.getElementById('portal').innerHTML = `
+      <div class="portal-state">
+        <div class="error-card">
+          <div class="portal-state-icon">&#128274;</div>
+          <div class="portal-state-title">${title}</div>
+          <div class="portal-state-body">${body}</div>
+        </div>
+      </div>`;
+  }
+
+  async function load() {
+    const token = new URLSearchParams(location.search).get('token');
+    if (!token) {
+      renderError('Invalid link', 'This link is missing a session token. Please use the link provided by your instructor.');
+      return;
+    }
+    try {
+      const res = await fetch(`${WORKER}?token=${encodeURIComponent(token)}`);
+      if (res.status === 403) {
+        renderError('Invalid link', 'This session link was not recognised. Please use the link sent by your instructor, or contact support.');
+        return;
+      }
+      if (!res.ok) {
+        renderError('Something went wrong', `Server returned ${res.status}. Please try again in a moment.`);
+        return;
+      }
+      renderFiles(await res.json());
+    } catch {
+      renderError('Connection error', 'Could not reach the session server. Please check your connection and try again.');
+    }
+  }
+
+  load();
+</script>
+</body>
+</html>
