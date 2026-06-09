@@ -209,6 +209,7 @@
     const ext = (name.split('.').pop() || '').toLowerCase();
     if (['mp4','mov','avi','mkv'].includes(ext)) return '&#127909;';
     if (ext === 'pdf') return '&#128196;';
+    if (ext === 'rrd') return '&#127902;';
     if (['json','csv','txt','log'].includes(ext)) return '&#128202;';
     if (['jpg','jpeg','png','webp'].includes(ext)) return '&#128444;';
     return '&#128206;';
@@ -253,7 +254,10 @@
               <div class="file-name">${esc(f.name)}</div>
               <div class="file-meta">${fmtSize(f.size)}${f.uploaded ? ' &middot; ' + fmtDate(f.uploaded) : ''}</div>
             </div>
-            <a class="dl-btn" href="${esc(f.url)}" download="${esc(f.name)}">&#8595; DOWNLOAD</a>
+            ${f.name.endsWith('.rrd')
+              ? `<a class="dl-btn" href="https://app.rerun.io/version/latest/index.html?url=${encodeURIComponent(f.url)}" target="_blank" rel="noopener">&#9654; VIEW REPLAY</a>`
+              : `<a class="dl-btn" href="${esc(f.url)}" download="${esc(f.name)}">&#8595; DOWNLOAD</a>`
+            }
           </div>`;
         }
         html += `</div>`;
