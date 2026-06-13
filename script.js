@@ -41,12 +41,13 @@ if (hamburger && navLinks) {
 
 // ── REFERRAL MODAL ───────────────────────────────────────────────────────────
 //
-// On submit, the lead (name + email + selected package) is POSTed to the site's
-// own Cloudflare Worker at /api/lead, which emails it to rico@ccdrvn.com via
-// SendGrid. The visitor is then redirected to the partner school's enrollment
-// page. See worker.js.
+// On submit, the lead (name + email + selected package) is POSTed to the
+// Cloudflare Worker, which emails it to rico@ccdrvn.com via SendGrid. The
+// visitor is then redirected to the partner school's enrollment page.
+// The site is served from GitHub Pages, so this is a cross-origin call to the
+// Worker (CORS is allowed for ccdrvn.com in worker.js). See worker.js.
 //
-const LEAD_ENDPOINT = '/api/lead';
+const LEAD_ENDPOINT = 'https://ccdrvn.rico-095.workers.dev/api/lead';
 
 const overlay    = document.getElementById('modalOverlay');
 const pkgLabel   = document.getElementById('modalPackageName');
