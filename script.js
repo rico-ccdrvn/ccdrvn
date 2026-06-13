@@ -41,22 +41,12 @@ if (hamburger && navLinks) {
 
 // ── REFERRAL MODAL ───────────────────────────────────────────────────────────
 //
-// !! SETUP REQUIRED — fill in your Google Form details below !!
+// On submit, the lead (name + email + selected package) is POSTed to the site's
+// own Cloudflare Worker at /api/lead, which emails it to rico@ccdrvn.com via
+// SendGrid. The visitor is then redirected to the partner school's enrollment
+// page. See worker.js.
 //
-// How to get your Google Form action URL and entry IDs:
-//   1. Create a Google Form with "Full Name" and "Email Address" fields
-//      (optional: add a "Package" field to track which package was selected)
-//   2. Open the form, right-click the page > View Source (or Inspect)
-//   3. Find the <form> action URL — it looks like:
-//      https://docs.google.com/forms/d/e/XXXXXXXXXX/formResponse
-//   4. Each field has an entry ID like entry.1234567890
-//      (hover over an input in the source to find its name attribute)
-//   5. Paste them below.
-//
-const GOOGLE_FORM_ACTION  = 'YOUR_GOOGLE_FORM_ACTION_URL';  // ← Replace
-const ENTRY_NAME          = 'entry.1612076781';              // ← Replace
-const ENTRY_EMAIL         = 'entry.245605055';              // ← Replace
-const ENTRY_PACKAGE       = 'entry.390902137';              // ← Replace (optional)
+const LEAD_ENDPOINT = '/api/lead';
 
 const overlay    = document.getElementById('modalOverlay');
 const pkgLabel   = document.getElementById('modalPackageName');
@@ -116,17 +106,16 @@ if (modalForm) {
     submitBtn.textContent = 'Redirecting…';
     submitBtn.disabled = true;
 
-    // Only submit to Google Forms if the action URL has been configured
-    if (GOOGLE_FORM_ACTION !== 'YOUR_GOOGLE_FORM_ACTION_URL') {
-      const fd = new FormData();
-      fd.append(ENTRY_NAME,    name);
-      fd.append(ENTRY_EMAIL,   email);
-      fd.append(ENTRY_PACKAGE, pendingPackage);
-      try {
-        await fetch(GOOGLE_FORM_ACTION, { method: 'POST', mode: 'no-cors', body: fd });
-      } catch (_) {
-        // Silently continue — never block the redirect on a network error
-      }
+    // Send the lead to our Worker (→ emails rico@ccdrvn.com). Never block the
+    // redirect on a slow/failed network — capture is best-effort.
+    try {
+      await fetch(LEAD_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, package: pendingPackage }),
+      });
+    } catch (_) {
+      // Silently continue.
     }
 
     window.location.href = pendingRedirect;
