@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ClearConnect — Practice Planner</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .pp-wrap { max-width: 760px; margin: 0 auto; padding: 1rem; }
+    .pp-card { background:#16181d; border:1px solid #2a2d36; border-radius:12px; padding:1rem 1.2rem; margin:1rem 0; }
+    .pp-dot { display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:.5rem; }
+    .pp-dot.Mastered{background:#00c07f}.pp-dot.Learning{background:#b47800}.pp-dot.Struggling{background:#be2828}
+    .pp-coach { background:#1d2430; border-left:3px solid #3b82f6; padding:.6rem .8rem; border-radius:6px; margin:.6rem 0; }
+    .pp-chip { display:inline-block; background:#2a2d36; border-radius:12px; padding:.15rem .6rem; margin:.15rem; font-size:.85rem; }
+    .pp-doing-well { background:#10261d; border:1px solid #00c07f; border-radius:10px; padding:.8rem 1rem; }
+    .pp-note { width:100%; background:#0e0f12; color:#eee; border:1px solid #2a2d36; border-radius:6px; padding:.4rem; margin-top:.4rem; }
+    .pp-strip { background:#1a1c22; border-radius:10px; padding:.6rem 1rem; font-size:.9rem; color:#bcc; }
+    .pp-step { display:flex; gap:.5rem; align-items:flex-start; margin:.3rem 0; }
+  </style>
+</head>
+<body>
+  <div class="pp-wrap">
+    <h1>Practice Planner</h1>
+    <div id="pp-root"><p>Loading your practice plan&hellip;</p></div>
+  </div>
+  <script>
+    const WORKER = 'https://clearconnect-portal.rico-095.workers.dev';
+    const root = document.getElementById('pp-root');
+
+    function renderError(title, body) {
+      root.innerHTML = `<div class="pp-card"><h2>${title}</h2><p>${body}</p>
+        <p>Contact <a href="mailto:rico@ccdrvn.com">rico@ccdrvn.com</a>.</p></div>`;
+    }
+
+    async function boot() {
+      const token = new URLSearchParams(location.search).get('token');
+      if (!token) return renderError('Invalid link', 'This link is missing a token. Use the link from your instructor.');
+      let data;
+      try {
+        const res = await fetch(`${WORKER}?token=${encodeURIComponent(token)}`);
+        if (res.status === 403) return renderError('Link expired or invalid', 'This planner link is no longer valid.');
+        if (!res.ok) return renderError('Could not load', 'Please try again later.');
+        data = await res.json();
+      } catch (e) { return renderError('Could not load', 'Check your connection and try again.'); }
+
+      const planFiles = (data.files || []).filter(f => f.path.endsWith('practice_plan.json'));
+      if (!planFiles.length) return renderError('No plan yet', 'No practice plan has been generated for this link yet.');
+
+      const plans = [];
+      for (const f of planFiles) {
+        try { const r = await fetch(f.url); if (r.ok) plans.push(await r.json()); } catch (e) {}
+      }
+      if (!plans.length) return renderError('Could not load plan', 'The practice plan could not be read.');
+      plans.sort((a, b) => (b.session_date || '').localeCompare(a.session_date || ''));
+      window.__renderPlans(token, plans);
+    }
+    boot();
+  </script>
+  <script>
+    const PlanStore = {
+      key(t, s, d, f) { return `cc:${t}:${s}:${d}:${f}`; },
+      _get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+      _set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} },
+      getChecked(t, s, d, i) { return this._get(this.key(t, s, d, `step${i}`)) === '1'; },
+      setChecked(t, s, d, i, v) { this._set(this.key(t, s, d, `step${i}`), v ? '1' : '0'); },
+      getNote(t, s, d) { return this._get(this.key(t, s, d, 'note')) || ''; },
+      setNote(t, s, d, txt) { this._set(this.key(t, s, d, 'note'), txt); },
+    };
+
+    function esc(s) { const e = document.createElement('div'); e.textContent = s == null ? '' : s; return e.innerHTML; }
+
+    function drillCard(token, sid, d, alsoSessions) {
+      const steps = d.steps.map((s, i) => {
+        const checked = PlanStore.getChecked(token, sid, d.drill_id, i) ? 'checked' : '';
+        return `<label class="pp-step"><input type="checkbox" data-step="${i}" ${checked}> <span>${esc(s)}</span></label>`;
+      }).join('');
+      const evidence = (d.evidence || []).map(e => `<span class="pp-chip">${esc(e)}</span>`).join(' ');
+      const also = alsoSessions.length
+        ? `<p style="color:#89a;font-size:.85rem">Also a focus on ${alsoSessions.map(esc).join(', ')}.</p>` : '';
+      const note = esc(PlanStore.getNote(token, sid, d.drill_id));
+      const VALID_MASTERY = { Mastered: 1, Learning: 1, Struggling: 1 };
+      const safeMastery = VALID_MASTERY[d.mastery_state] ? d.mastery_state : 'Learning';
+      const card = document.createElement('div');
+      card.className = 'pp-card';
+      card.innerHTML = `
+        <h3><span class="pp-dot ${safeMastery}"></span>${esc(d.skill)}
+          <small style="color:#789">(${safeMastery}, ~${esc(d.est_minutes)} min)</small></h3>
+        <p><strong>Why this matters:</strong> ${esc(d.why)}</p>
+        ${evidence ? `<p>${evidence}</p>` : ''}
+        <p><strong>In the car:</strong></p>${steps}
+        <div class="pp-coach"><strong>For your coach:</strong> ${esc(d.parent_cue)}</div>
+        <p><strong>Where to practice:</strong> ${esc(d.where)}</p>
+        ${also}
+        <textarea class="pp-note" placeholder="Coach's notes…">${note}</textarea>`;
+      card.querySelectorAll('input[type=checkbox]').forEach(cb =>
+        cb.addEventListener('change', () => PlanStore.setChecked(token, sid, d.drill_id, +cb.dataset.step, cb.checked)));
+      card.querySelector('.pp-note').addEventListener('input', e =>
+        PlanStore.setNote(token, sid, d.drill_id, e.target.value));
+      return card;
+    }
+
+    window.__renderPlans = function (token, plans) {
+      const active = plans[0], history = plans.slice(1);
+      const sid = active.session_id || active.session_date || 'unknown';
+      root.innerHTML = '';
+
+      const head = document.createElement('div');
+      head.innerHTML = `<p><strong>${esc(active.student_name)}</strong> — ${esc(active.session_date)} — score ${esc(active.score)}</p>
+        <p>${esc(active.headline)}</p>`;
+      root.appendChild(head);
+
+      window.__renderStrip(root, plans);
+
+      if (active.doing_well) {
+        const dw = document.createElement('div');
+        dw.className = 'pp-doing-well';
+        dw.innerHTML = `<strong>Doing well:</strong> ${esc(active.doing_well)}`;
+        root.appendChild(dw);
+      }
+      const earlier = {};
+      history.forEach(p => (p.drills || []).forEach(d =>
+        (earlier[d.drill_id] = earlier[d.drill_id] || []).push(p.session_date)));
+
+      (active.drills || []).forEach(d => root.appendChild(drillCard(token, sid, d, earlier[d.drill_id] || [])));
+
+      const foot = document.createElement('p');
+      foot.style.cssText = 'color:#789;font-size:.85rem;margin-top:1.5rem';
+      foot.textContent = active.supervisor_notes;
+      root.appendChild(foot);
+    };
+  </script>
+  <script>
+    window.__renderStrip = function (root, plans) {
+      if (plans.length < 2) return;
+      const counts = {};
+      plans.forEach(p => (p.drills || []).forEach(d => {
+        counts[d.skill] = (counts[d.skill] || 0) + 1;
+      }));
+      const recurring = Object.entries(counts).filter(([, n]) => n >= 2)
+        .sort((a, b) => b[1] - a[1]).map(([s, n]) => `${esc(s)} (${n} sessions)`);
+      if (!recurring.length) return;
+      const strip = document.createElement('div');
+      strip.className = 'pp-strip';
+      strip.innerHTML = `<strong>Recurring focus:</strong> ${recurring.join(' · ')}`;
+      root.appendChild(strip);
+    };
+  </script>
+</body>
+</html>
