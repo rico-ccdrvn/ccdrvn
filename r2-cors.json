@@ -1,0 +1,8 @@
+[
+  {
+    "AllowedOrigins": ["https://ccdrvn.com", "https://www.ccdrvn.com"],
+    "AllowedMethods": ["GET"],
+    "AllowedHeaders": ["*"],
+    "MaxAgeSeconds": 3600
+  }
+]
