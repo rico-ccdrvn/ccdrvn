@@ -232,9 +232,18 @@
 
   function renderFiles(data) {
     const groups = groupByFolder(data.files);
+    const practiceUrl = 'practice.html?token=' + encodeURIComponent(new URLSearchParams(location.search).get('token') || '');
     let html = `
       <div class="portal-heading">${esc(data.client_name || 'Session Files')}</div>
       <div class="portal-sub">Session Recordings &amp; Reports</div>
+      <p style="margin:0 0 22px;">
+        <a href="${practiceUrl}"
+           style="display:inline-block; background:#00c07f; color:#0b0b0d;
+                  padding:10px 22px; text-decoration:none; font-weight:bold;
+                  font-size:0.72rem; border-radius:3px; letter-spacing:0.04em;">
+          &#9654; Open your Practice Planner
+        </a>
+      </p>
     `;
 
     if (!data.files.length) {
