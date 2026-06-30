@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Observation — Done Right | CC Driving Instruction</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0D0F12;--card:#1A1D24;--border:#2A2D35;
+  --amber:#F5A623;--amber-dim:#7A4F0A;--white:#F0F2F5;
+  --muted:#8A8F9A;--green:#3DD68C;--red:#F05C5C;--blue:#5BA8F5;
+}
+html,body{height:100%;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;color:var(--white);overflow:hidden;user-select:none;-webkit-user-select:none}
+#app{height:100%;display:flex;flex-direction:column}
+#hdr{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:14px 20px 10px;border-bottom:1px solid var(--border)}
+.brand{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--amber)}
+.htitle{font-size:13px;font-weight:600}
+.ctr{font-size:11px;font-weight:600;color:var(--muted);min-width:40px;text-align:right}
+#pb{flex-shrink:0;height:3px;background:var(--border)}
+#pf{height:100%;background:var(--amber);transition:width .35s ease}
+#vp{flex:1;overflow:hidden;position:relative}
+.slide{position:absolute;inset:0;display:flex;flex-direction:column;padding:18px 20px 12px;opacity:0;transform:translateX(60px);transition:opacity .3s ease,transform .3s ease;pointer-events:none}
+.slide.active{opacity:1;transform:translateX(0);pointer-events:auto}
+.slide.out{opacity:0;transform:translateX(-60px)}
+.step{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--amber);margin-bottom:4px}
+.heading{font-size:20px;font-weight:800;line-height:1.15;margin-bottom:12px}
+.visual{flex:1;display:flex;align-items:center;justify-content:center;background:var(--card);border-radius:16px;border:1px solid var(--border);margin-bottom:12px;overflow:hidden;min-height:0;position:relative}
+.visual svg{width:100%;height:100%}
+.body{font-size:14px;line-height:1.5;margin-bottom:7px}
+.body strong{color:var(--amber);font-weight:700}
+.tip{font-size:12px;color:var(--muted);border-left:2px solid var(--amber-dim);padding-left:10px;line-height:1.4}
+.ovl{position:absolute;font-size:9px;font-weight:700;background:rgba(13,15,18,.88);padding:2px 7px;border-radius:5px}
+.checklist{list-style:none;display:flex;flex-direction:column;gap:9px;width:100%;padding:14px}
+.checklist li{display:flex;align-items:flex-start;gap:10px;font-size:13px;line-height:1.4}
+.ic{flex-shrink:0;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;margin-top:1px}
+.ic-bad{background:rgba(240,92,92,.2);color:var(--red)}
+.ic-ok{background:rgba(61,214,140,.2);color:var(--green)}
+#dots{display:flex;justify-content:center;gap:5px;padding-bottom:6px;flex-shrink:0}
+.dot{width:5px;height:5px;border-radius:50%;background:var(--border);transition:background .25s,transform .25s}
+.dot.active{background:var(--amber);transform:scale(1.5)}
+#nav{flex-shrink:0;display:flex;gap:12px;padding:8px 20px 18px}
+.btn{flex:1;height:50px;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;transition:opacity .15s,transform .1s}
+.btn:active{transform:scale(.97)}
+#bp{background:var(--card);color:var(--muted);border:1px solid var(--border)}
+#bp:disabled{opacity:.3;cursor:default}
+#bn{background:var(--amber);color:#0D0F12}
+#bn.done{background:var(--green)}
+@media (prefers-reduced-motion:reduce){.slide,#pf{transition:none}}
+</style>
+</head>
+<body>
+<div id="app">
+<div id="hdr">
+  <span class="brand">CC Driving</span>
+  <span class="htitle">Observation — Done Right</span>
+  <span class="ctr" id="ct">1 / 10</span>
+</div>
+<div id="pb"><div id="pf"></div></div>
+<div id="vp">
+
+<!-- ════════════════════════════════════════════════
+  SLIDE 1 — Why observation is scored
+════════════════════════════════════════════════ -->
+<div class="slide active" data-i="0">
+  <div class="step">Why It Matters</div>
+  <div class="heading">Observation is the #1 thing scored</div>
+  <div class="visual">
+    <svg viewBox="0 0 340 220" xmlns="http://www.w3.org/2000/svg">
+      <rect width="340" height="220" fill="#1A1D24"/>
+      <!-- Bar chart: marks lost by category -->
+      <text x="170" y="22" font-size="11" fill="#F0F2F5" text-anchor="middle" font-family="system-ui" font-weight="700">Where road-test marks are lost</text>
+      <!-- bars -->
+      <!-- Observation (biggest) -->
+      <rect x="30" y="44" width="200" height="22" rx="3" fill="#F5A623"/>
+      <text x="36" y="59" font-size="9" fill="#0D0F12" font-family="system-ui" font-weight="800">OBSERVATION</text>
+      <!-- Speed -->
+      <rect x="30" y="76" width="120" height="22" rx="3" fill="#5BA8F5" opacity="0.8"/>
+      <text x="36" y="91" font-size="9" fill="#0D0F12" font-family="system-ui" font-weight="700">Speed control</text>
+      <!-- Turns -->
+      <rect x="30" y="108" width="105" height="22" rx="3" fill="#5BA8F5" opacity="0.65"/>
+      <text x="36" y="123" font-size="9" fill="#0D0F12" font-family="system-ui" font-weight="700">Turns</text>
+      <!-- Lane position -->
+      <rect x="30" y="140" width="88" height="22" rx="3" fill="#5BA8F5" opacity="0.5"/>
+      <text x="36" y="155" font-size="9" fill="#0D0F12" font-family="system-ui" font-weight="700">Lane position</text>
+      <!-- Stops -->
+      <rect x="30" y="172" width="70" height="22" rx="3" fill="#5BA8F5" opacity="0.4"/>
+      <text x="36" y="187" font-size="9" fill="#0D0F12" font-family="system-ui" font-weight="700">Stops</text>
+      <!-- callout -->
+      <text x="238" y="58" font-size="9" fill="#F5A623" font-family="system-ui" font-weight="700">← most</text>
+      <text x="238" y="69" font-size="9" fill="#F5A623" font-family="system-ui" font-weight="700">   common</text>
+    </svg>
+  </div>
+  <div class="body">More road-test marks are lost on <strong>observation</strong> than any other category. The examiner can only credit what they can <strong>see you do</strong> — so observation must be visible, not just intended.</div>
+  <div class="tip">Most observation marks aren't lost because the student didn't look — they're lost because the look wasn't visible enough to count.</div>
+</div>
+
+<!-- ════════════════════════════════════════════════
+  SLIDE 2 — Glance vs. check (the core distinction)
+════════════════════════════════════════════════ -->
+<div class="slide" data-i="1">
+  <div class="step">The Core Distinction</div>
+  <div class="heading">A glance is not a check</div>
+  <div class="visual">
+    <svg viewBox="0 0 340 220" xmlns="http://www.w3.org/2000/svg">
+      <rect width="340" height="220" fill="#1A1D24"/>
+      <!-- LEFT: eyes-only (bad) -->
+      <text x="85" y="22" font-size="10" fill="#F05C5C" text-anchor="middle" font-family="system-ui" font-weight="700">✕ EYES ONLY</text>
+      <!-- head top-down, facing forward, only eyes shift -->
+      <circle cx="85" cy="110" r="38" fill="#2A2D35" stroke="#F05C5C" stroke-width="2"/>
+      <!-- nose pointing up (forward) -->
+      <polygon points="85,72 80,84 90,84" fill="#F05C5C" opacity="0.6"/>
+      <!-- eyes shifted but head straight -->
+      <circle cx="74" cy="104" r="5" fill="#F0F2F5"/>
+      <circle cx="96" cy="104" r="5" fill="#F0F2F5"/>
+      <circle cx="71" cy="104" r="2.5" fill="#0D0F12"/>
+      <circle cx="93" cy="104" r="2.5" fill="#0D0F12"/>
+      <text x="85" y="170" font-size="8.5" fill="#8A8F9A" text-anchor="middle" font-family="system-ui">Head stays forward</text>
+      <text x="85" y="182" font-size="8.5" fill="#F05C5C" text-anchor="middle" font-family="system-ui" font-weight="700">Doesn't count</text>
+      <!-- divider -->
+      <line x1="170" y1="30" x2="170" y2="195" stroke="#2A2D35" stroke-width="1"/>
+      <!-- RIGHT: head turn (good) -->
+      <text x="255" y="22" font-size="10" fill="#3DD68C" text-anchor="middle" font-family="system-ui" font-weight="700">✓ HEAD TURN</text>
+      <circle cx="255" cy="110" r="38" fill="#2A2D35" stroke="#3DD68C" stroke-width="2"/>
+      <!-- nose pointing to the side (turned) -->
+      <polygon points="293,103 281,98 281,108" fill="#3DD68C" opacity="0.7"/>
+      <!-- eyes on turned head -->
+      <circle cx="270" cy="100" r="5" fill="#F0F2F5"/>
+      <circle cx="272" cy="120" r="5" fill="#F0F2F5"/>
+      <circle cx="272" cy="100" r="2.5" fill="#0D0F12"/>
+      <circle cx="274" cy="120" r="2.5" fill="#0D0F12"/>
+      <!-- rotation arc -->
+      <path d="M255 72 A38 38 0 0 1 290 92" stroke="#3DD68C" stroke-width="2" fill="none" stroke-dasharray="4,3" marker-end="url(#g)"/>
+      <defs><marker id="g" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7Z" fill="#3DD68C"/></marker></defs>
+      <text x="255" y="170" font-size="8.5" fill="#8A8F9A" text-anchor="middle" font-family="system-ui">Head visibly turns</text>
+      <text x="255" y="182" font-size="8.5" fill="#3DD68C" text-anchor="middle" font-family="system-ui" font-weight="700">Counts as a check</text>
+    </svg>
+  </div>
+  <div class="body">Shifting only your <strong>eyes</strong> doesn't register as observation. A real check is a <strong>visible head turn</strong> — the movement is what makes it count.</div>
+  <div class="tip">If someone in the passenger seat couldn't tell you checked, neither can the examiner. The head turn is the signal.</div>
+</div>
+
+<!-- ════════════════════════════════════════════════
+  SLIDE 3 — The camera sees what the examiner sees
+════════════════════════════════════════════════ -->
+<div class="slide" data-i="2">
+  <div class="step">What Gets Measured</div>
+  <div class="heading">The camera sees what the examiner sees</div>
+  <div class="visual">
+    <svg viewBox="0 0 340 220" xmlns="http://www.w3.org/2000/svg">
+      <rect width="340" height="220" fill="#1A1D24"/>
+      <!-- driver head with tracking mesh dots (FaceMesh idea) -->
+      <circle cx="120" cy="110" r="48" fill="#2A2D35" stroke="#5BA8F5" stroke-width="2"/>
+      <!-- mesh dots -->
+      <g fill="#5BA8F5">
+        <circle cx="105" cy="95" r="1.6"/><circle cx="135" cy="95" r="1.6"/>
+        <circle cx="120" cy="105" r="1.6"/><circle cx="110" cy="118" r="1.6"/>
+        <circle cx="130" cy="118" r="1.6"/><circle cx="120" cy="128" r="1.6"/>
+        <circle cx="98" cy="110" r="1.6"/><circle cx="142" cy="110" r="1.6"/>
+        <circle cx="112" cy="82" r="1.6"/><circle cx="128" cy="82" r="1.6"/>
+      </g>
+      <!-- connecting mesh lines -->
+      <g stroke="#5BA8F5" stroke-width="0.5" opacity="0.4">
+        <line x1="105" y1="95" x2="135" y2="95"/><line x1="105" y1="95" x2="120" y2="105"/>
+        <line x1="135" y1="95" x2="120" y2="105"/><line x1="110" y1="118" x2="130" y2="118"/>
+        <line x1="120" y1="105" x2="120" y2="128"/><line x1="98" y1="110" x2="142" y2="110"/>
+      </g>
+      <!-- yaw angle arc -->
+      <path d="M120 62 A48 48 0 0 1 160 88" stroke="#F5A623" stroke-width="2" fill="none" stroke-dasharray="4,3"/>
+      <text x="172" y="78" font-size="9" fill="#F5A623" font-family="system-ui" font-weight="700">head angle</text>
+      <text x="172" y="90" font-size="9" fill="#F5A623" font-family="system-ui" font-weight="700">tracked</text>
+      <!-- cabin camera icon -->
+      <rect x="248" y="150" width="34" height="22" rx="4" fill="#0D0F12" stroke="#5BA8F5" stroke-width="1.5"/>
+      <circle cx="265" cy="161" r="6" fill="none" stroke="#5BA8F5" stroke-width="1.5"/>
+      <circle cx="265" cy="161" r="2.5" fill="#5BA8F5"/>
+      <text x="265" y="184" font-size="8" fill="#5BA8F5" text-anchor="middle" font-family="system-ui" font-weight="700">cabin camera</text>
+      <!-- sightline from camera to head -->
+      <line x1="248" y1="158" x2="168" y2="118" stroke="#5BA8F5" stroke-width="1" stroke-dasharray="4,3" opacity="0.5"/>
+    </svg>
+  </div>
+  <div class="body">My Lesson Review tracks your <strong>head movement</strong> the same way an examiner watches it — the cabin camera measures whether your head actually turned for each check.</div>
+  <div class="tip">This is why the report can tell the difference between a real shoulder check and an eyes-only glance: it's measuring head angle, just like the examiner is watching for it.</div>
+</div>
+
+<!-- ════════════════════════════════════════════════
+  SLIDE 4 — Mirror checks
+════════════════════════════════════════════════ -->
+<div class="slide" data-i="3">
+  <div class="step">Observation Type 1</div>
+  <div class="heading">Mirror checks — a visible flick</div>
+  <div class="visual">
+    <svg viewBox="0 0 340 220" xmlns="http://www.w3.org/2000/svg">
+      <rect width="340" height="220" fill="#1A1D24"/>
+      <!-- windscreen / dashboard eye-line view -->
+      <path d="M20 150 Q170 130 320 150 L320 200 L20 200 Z" fill="#0D0F12"/>
+      <!-- rearview mirror -->
+      <rect x="135" y="26" width="70" height="36" rx="5" fill="#0D0F12" stroke="#F5A623" stroke-width="2"/>
+      <rect x="139" y="30" width="62" height="28" rx="3" fill="#131620"/>
+      <text x="170" y="48" font-size="8" fill="#8A8F9A" text-anchor="middle" font-family="system-ui">rearview</text>
+      <!-- left side mirror -->
+      <rect x="24" y="86" width="48" height="30" rx="4" fill="#0D0F12" stroke="#F5A623" stroke-width="2"/>
+      <text x="48" y="104" font-size="7.5" fill="#8A8F9A" text-anchor="middle" font-family="system-ui">L mirror</text>
+      <!-- right side mirror -->
+      <rect x="268" y="86" width="48" height="30" rx="4" fill="#0D0F12" stroke="#F5A623" stroke-width="2"/>
+      <text x="292" y="104" font-size="7.5" fill="#8A8F9A" text-anchor="middle" font-family="system-ui">R mirror</text>
+      <!-- driver eye point -->
+      <circle cx="150" cy="175" r="6" fill="#5BA8F5"/>
+      <!-- eye-line arrows to each mirror -->
+      <line x1="150" y1="169" x2="168" y2="64" stroke="#F5A623" stroke-width="1.5" stroke-dasharray="5,4" opacity="0.7"/>
+      <line x1="146" y1="171" x2="55" y2="116" stroke="#F5A623" stroke-width="1.5" stroke-dasharray="5,4" opacity="0.5"/>
+      <line x1="156" y1="171" x2="285" y2="116" stroke="#F5A623" stroke-width="1.5" stroke-dasharray="5,4" opacity="0.5"/>
+      <text x="170" y="215" font-size="8" fill="#8A8F9A" text-anchor="middle" font-family="system-ui">eyes flick up/across — quick but deliberate</text>
+    </svg>
+  </div>
+  <div class="body">Mirror checks are quicker than shoulder checks — a <strong>deliberate flick</strong> of the eyes up to the rearview or across to a side mirror. Done before braking, before signalling, before any move.</div>
+  <div class="tip">Even mirror checks should be visible enough to read as a deliberate look, not a vague drift. A tiny head movement toward the mirror helps it register.</div>
+</div>
+
+<!-- ════════════════════════════════════════════════
+  SLIDE 5 — The shoulder check
+════════════════════════════════════════════════ -->
+<div class="slide" data-i="4">
+  <div class="step">Observation Type 2</div>
+  <div class="heading">The shoulder check — full head turn</div>
+  <div class="visual">
+    <svg viewBox="0 0 340 220" xmlns="http://www.w3.org/2000/svg">
+      <rect width="340" height="220" fill="#1A1D24"/>
+      <!-- top-down driver head turning to shoulder -->
+      <circle cx="170" cy="105" r="46" fill="#2A2D35" stroke="#3DD68C" stroke-width="2"/>
+      <!-- nose turned toward shoulder (left) -->
+      <polygon points="126,98 138,92 138,104" fill="#3DD68C" opacity="0.7"/>
+      <!-- eyes on turned head -->
+      <circle cx="148" cy="93" r="5" fill="#F0F2F5"/>
+      <circle cx="150" cy="115" r="5" fill="#F0F2F5"/>
+      <circle cx="150" cy="93" r="2.5" fill="#0D0F12"/>
+      <circle cx="152" cy="115" r="2.5" fill="#0D0F12"/>
+      <!-- chin-to-shoulder rotation arc -->
+      <path d="M170 59 A46 46 0 0 0 126 90" stroke="#3DD68C" stroke-width="2.5" fill="none" stroke-dasharray="5,3" marker-end="url(#g2)"/>
+      <defs><marker id="g2" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7Z" fill="#3DD68C"/></marker></defs>
+      <!-- forward reference (dim) -->
+      <line x1="170" y1="105" x2="170" y2="55" stroke="#8A8F9A" stroke-width="1" stroke-dasharray="3,3" opacity="0.4"/>
+      <text x="178" y="58" font-size="8" fill="#8A8F9A" font-family="system-ui">forward</text>
+      <!-- label -->
+      <text x="100" y="80" font-size="9" fill="#3DD68C" font-family="system-ui" font-weight="700">chin to</text>
+      <text x="100" y="92" font-size="9" fill="#3DD68C" font-family="system-ui" font-weight="700">shoulder</text>
+      <text x="170" y="180" font-size="9" fill="#F0F2F5" text-anchor="middle" font-family="system-ui">Whole head rotates — clears the blind spot</text>
+      <text x="170" y="196" font-size="8" fill="#8A8F9A" text-anchor="middle" font-family="system-ui">mirrors can't see this zone</text>
+    </svg>
+  </div>
+  <div class="body">The shoulder check is a <strong>full head turn — chin toward the shoulder</strong>. It's the only way to clear the blind spot mirrors can't see, and the big head movement is unmistakable to the examiner.</div>
+  <div class="tip">Required before every lane change, merge, and turn. Eyes alone never clear a blind spot — the head has to come around.</div>
+</div>
+
+<!-- ════════════════════════════════════════════════
+  SLIDE 6 — The timed routine
+════════════════════════════════════════════════ -->
+<div class="slide" data-i="5">
+  <div class="step">The Rhythm</div>
+  <div class="heading">One second each — inside a 3-second signal</div>
+  <div class="visual">
+    <svg viewBox="0 0 340 220" xmlns="http://www.w3.org/2000/svg">
+      <rect width="340" height="220" fill="#1A1D24"/>
+      <!-- signal timeline bar across the top -->
+      <text x="170" y="20" font-size="10" fill="#5BA8F5" text-anchor="middle" font-family="system-ui" font-weight="700">SIGNAL ON — 3 seconds before the action</text>
+      <rect x="24" y="28" width="292" height="14" rx="7" fill="#0D0F12" stroke="#5BA8F5" stroke-width="1"/>
+      <rect x="24" y="28" width="292" height="14" rx="7" fill="#5BA8F5" opacity="0.18"/>
+      <!-- second ticks -->
+      <line x1="121" y1="28" x2="121" y2="42" stroke="#5BA8F5" stroke-width="1" opacity="0.5"/>
+      <line x1="218" y1="28" x2="218" y2="42" stroke="#5BA8F5" stroke-width="1" opacity="0.5"/>
+      <text x="72"  y="38" font-size="8" fill="#5BA8F5" text-anchor="middle" font-family="system-ui" font-weight="700">1s</text>
+      <text x="170" y="38" font-size="8" fill="#5BA8F5" text-anchor="middle" font-family="system-ui" font-weight="700">2s</text>
+      <text x="267" y="38" font-size="8" fill="#5BA8F5" text-anchor="middle" font-family="system-ui" font-weight="700">3s</text>
+      <!-- three checks, one per second -->
+      <!-- 1 rearview -->
+      <rect x="30" y="64" width="84" height="92" rx="10" fill="#0D0F12" stroke="#F5A623" stroke-width="1.5"/>
+      <circle cx="72" cy="88" r="15" fill="#F5A623"/>
+      <text x="72" y="93" font-size="15" fill="#0D0F12" text-anchor="middle" font-family="system-ui" font-weight="800">1</text>
+      <text x="72" y="120" font-size="9.5" fill="#F5A623" text-anchor="middle" font-family="system-ui" font-weight="700">REARVIEW</text>
+      <text x="72" y="138" font-size="8" fill="#8A8F9A" text-anchor="middle" font-family="system-ui">mirror</text>
+      <text x="72" y="150" font-size="8" fill="#8A8F9A" text-anchor="middle" font-family="system-ui">1 sec</text>
+      <!-- 2 side mirror -->
+      <rect x="128" y="64" width="84" height="92" rx="10" fill="#0D0F12" stroke="#F5A623" stroke-width="1.5"/>
+      <circle cx="170" cy="88" r="15" fill="#F5A623"/>
+      <text x="170" y="93" font-size="15" fill="#0D0F12" text-anchor="middle" font-family="system-ui" font-weight="800">2</text>
+      <text x="170" y="120" font-size="9.5" fill="#F5A623" text-anchor="middle" font-family="system-ui" font-weight="700">SIDE</text>
+      <text x="170" y="138" font-size="8" fill="#8A8F9A" text-anchor="middle" font-family="system-ui">mirror</text>
+      <text x="170" y="150" font-size="8" fill="#8A8F9A" text-anchor="middle" font-family="system-ui">1 sec</text>
+      <!-- 3 shoulder -->
+      <rect x="226" y="64" width="84" height="92" rx="10" fill="#0D0F12" stroke="#3DD68C" stroke-width="1.5"/>
+      <circle cx="268" cy="88" r="15" fill="#3DD68C"/>
+      <text x="268" y="93" font-size="15" fill="#0D0F12" text-anchor="middle" font-family="system-ui" font-weight="800">3</text>
+      <text x="268" y="120" font-size="9.5" fill="#3DD68C" text-anchor="middle" font-family="system-ui" font-weight="700">CHIN TO</text>
+      <text x="268" y="138" font-size="8" fill="#8A8F9A" text-anchor="middle" font-family="system-ui">shoulder</text>
+      <text x="268" y="150" font-size="8" fill="#8A8F9A" text-anchor="middle" font-family="system-ui">1 sec</text>
+      <!-- arrows between -->
+      <text x="121" y="114" font-size="16" fill="#2A2D35" text-anchor="middle" font-family="system-ui">›</text>
+      <text x="219" y="114" font-size="16" fill="#2A2D35" text-anchor="middle" font-family="system-ui">›</text>
+      <!-- then action -->
+      <text x="170" y="180" font-size="9" fill="#F0F2F5" text-anchor="middle" font-family="system-ui" font-weight="700">→ then make the move</text>
+      <text x="170" y="196" font-size="8" fill="#8A8F9A" text-anchor="middle" font-family="system-ui">three checks fit inside the three-second signal</text>
+    </svg>
+  </div>
+  <div class="body">Give each check a full second: <strong>rearview, side mirror, then chin to shoulder</strong> — one second each. The <strong>signal stays on 3 seconds</strong> before you act, so all three checks fit inside that window.</div>
+  <div class="tip">Counting "one… two… three" as you check builds the rhythm. Rushing the three into half a second is what makes them read as eyes-only glances.</div>
+</div>
+
+<!-- ════════════════════════════════════════════════
+  SLIDE 6 — Standard scan pattern
+════════════════════════════════════════════════ -->
+<div class="slide" data-i="6">
+  <div class="step">The Pattern</div>
+  <div class="heading">Scan: left — right — left</div>
+  <div class="visual">
+    <svg viewBox="0 0 340 220" xmlns="http://www.w3.org/2000/svg">
+      <rect width="340" height="220" fill="#1A1D24"/>
+      <!-- top-down head at intersection -->
+      <circle cx="170" cy="120" r="40" fill="#2A2D35" stroke="#5BA8F5" stroke-width="2"/>
+      <circle cx="160" cy="115" r="4.5" fill="#F0F2F5"/>
+      <circle cx="180" cy="115" r="4.5" fill="#F0F2F5"/>
+      <!-- scan arcs numbered -->
+      <!-- 1 LEFT -->
+      <path d="M140 100 Q90 90 70 110" stroke="#F5A623" stroke-width="2.5" fill="none" stroke-dasharray="5,3" marker-end="url(#a1)"/>
+      <circle cx="70" cy="110" r="11" fill="#F5A623"/>
+      <text x="70" y="114" font-size="11" fill="#0D0F12" text-anchor="middle" font-family="system-ui" font-weight="800">1</text>
+      <text x="70" y="135" font-size="8" fill="#F5A623" text-anchor="middle" font-family="system-ui" font-weight="700">LEFT</text>
+      <!-- 2 RIGHT -->
+      <path d="M200 100 Q250 90 270 110" stroke="#3DD68C" stroke-width="2.5" fill="none" stroke-dasharray="5,3" marker-end="url(#a2)"/>
+      <circle cx="270" cy="110" r="11" fill="#3DD68C"/>
+      <text x="270" y="114" font-size="11" fill="#0D0F12" text-anchor="middle" font-family="system-ui" font-weight="800">2</text>
+      <text x="270" y="135" font-size="8" fill="#3DD68C" text-anchor="middle" font-family="system-ui" font-weight="700">RIGHT</text>
+      <!-- 3 LEFT again -->
+      <path d="M138 108 Q92 104 74 124" stroke="#F5A623" stroke-width="2" fill="none" stroke-dasharray="3,3" opacity="0.6" marker-end="url(#a3)"/>
+      <circle cx="74" cy="150" r="11" fill="#0D0F12" stroke="#F5A623" stroke-width="1.5"/>
+      <text x="74" y="154" font-size="11" fill="#F5A623" text-anchor="middle" font-family="system-ui" font-weight="800">3</text>
+      <text x="74" y="172" font-size="8" fill="#F5A623" text-anchor="middle" font-family="system-ui" font-weight="700">LEFT again</text>
+      <defs>
+        <marker id="a1" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7Z" fill="#F5A623"/></marker>
+        <marker id="a2" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7Z" fill="#3DD68C"/></marker>
+        <marker id="a3" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7Z" fill="#F5A623"/></marker>
+      </defs>
+      <text x="170" y="186" font-size="8.5" fill="#8A8F9A" text-anchor="middle" font-family="system-ui">left first — nearest threat — then right, then left again</text>
+    </svg>
+  </div>
+  <div class="body">At every intersection, scan <strong>left, then right, then left again</strong> before proceeding. Left comes first and last because the nearest traffic reaches you from the left.</div>
+  <div class="tip">In motion, the equivalent is keeping your eyes moving — ahead, mirrors, and around — rather than fixing on one point. Examiners watch for active, moving eyes.</div>
+</div>
+
+<!-- ════════════════════════════════════════════════
+  SLIDE 7 — When observation is required (triggers)
+════════════════════════════════════════════════ -->
+<div class="slide" data-i="7">
+  <div class="step">The Triggers</div>
+  <div class="heading">When a check is required</div>
+  <div class="visual">
+    <ul class="checklist">
+      <li><div class="ic ic-ok">✓</div><span><strong style="color:#F5A623">Before signalling</strong> — mirror check first, so you know what's around you</span></li>
+      <li><div class="ic ic-ok">✓</div><span><strong style="color:#F5A623">Before braking or slowing</strong> — rearview, to know who's behind</span></li>
+      <li><div class="ic ic-ok">✓</div><span><strong style="color:#F5A623">Before every lane change</strong> — mirror + signal + shoulder check</span></li>
+      <li><div class="ic ic-ok">✓</div><span><strong style="color:#F5A623">Before every turn</strong> — mirrors + shoulder check toward the turn</span></li>
+      <li><div class="ic ic-ok">✓</div><span><strong style="color:#F5A623">At every intersection</strong> — left-right-left, even on a green</span></li>
+      <li><div class="ic ic-ok">✓</div><span><strong style="color:#F5A623">Pulling from a curb or parking spot</strong> — mirror + shoulder check before moving</span></li>
+    </ul>
+  </div>
+  <div class="body">Observation isn't occasional — it's triggered by specific actions. <strong>Any time you change speed, direction, or position</strong>, a check comes first.</div>
+  <div class="tip">Build the habit so the check happens automatically before the action — examiners notice when observation comes after the move instead of before it.</div>
+</div>
+
+<!-- ════════════════════════════════════════════════
+  SLIDE 8 — Common observation errors
+════════════════════════════════════════════════ -->
+<div class="slide" data-i="8">
+  <div class="step">What Loses Marks</div>
+  <div class="heading">Common observation errors</div>
+  <div class="visual">
+    <ul class="checklist">
+      <li><div class="ic ic-bad">✕</div><span><strong style="color:#F05C5C">Eyes only, no head turn</strong> — the most common one; reads as no check at all</span></li>
+      <li><div class="ic ic-bad">✕</div><span><strong style="color:#F05C5C">Skipping the shoulder check</strong> — relying on mirrors alone leaves the blind spot unchecked</span></li>
+      <li><div class="ic ic-bad">✕</div><span><strong style="color:#F05C5C">Checking too late</strong> — observing after starting the move instead of before</span></li>
+      <li><div class="ic ic-bad">✕</div><span><strong style="color:#F05C5C">Not re-checking</strong> — conditions change; one check at the start isn't enough</span></li>
+      <li><div class="ic ic-bad">✕</div><span><strong style="color:#F05C5C">Staring / fixating</strong> — locking eyes on one point instead of keeping them moving</span></li>
+    </ul>
+  </div>
+  <div class="body">Nearly every observation error comes down to a check that was <strong>invisible, skipped, late, or not repeated</strong>. Fixing those four covers most of the marks lost in this category.</div>
+  <div class="tip">If your lesson review flags a missed check, this is usually why — the look happened with the eyes but not the head, so it didn't register.</div>
+</div>
+
+<!-- ════════════════════════════════════════════════
+  SLIDE 9 — Summary
+════════════════════════════════════════════════ -->
+<div class="slide" data-i="9">
+  <div class="step">Summary</div>
+  <div class="heading">Observation — done right</div>
+  <div class="visual" style="padding:16px;flex-direction:column;gap:9px;justify-content:flex-start;align-items:stretch">
+    <div style="display:flex;gap:10px;align-items:center;padding:10px 12px;background:rgba(245,166,35,.08);border-radius:10px;border:1px solid rgba(245,166,35,.2)">
+      <div style="font-size:18px;flex-shrink:0">👁️</div>
+      <div><div style="font-size:10px;font-weight:700;color:#F5A623;letter-spacing:.06em;text-transform:uppercase;margin-bottom:1px">Make it visible</div><div style="font-size:13px;font-weight:600">Head turns, not just eyes — the movement is what counts</div></div>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;padding:10px 12px;background:rgba(91,168,245,.08);border-radius:10px;border:1px solid rgba(91,168,245,.2)">
+      <div style="font-size:18px;flex-shrink:0">🪞</div>
+      <div><div style="font-size:10px;font-weight:700;color:#5BA8F5;letter-spacing:.06em;text-transform:uppercase;margin-bottom:1px">Mirrors + shoulder</div><div style="font-size:13px;font-weight:600">Mirror flick for traffic, head turn for the blind spot</div></div>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;padding:10px 12px;background:rgba(61,214,140,.08);border-radius:10px;border:1px solid rgba(61,214,140,.2)">
+      <div style="font-size:18px;flex-shrink:0">🔁</div>
+      <div><div style="font-size:10px;font-weight:700;color:#3DD68C;letter-spacing:.06em;text-transform:uppercase;margin-bottom:1px">Before every action</div><div style="font-size:13px;font-weight:600">Check before signalling, braking, turning, changing lanes</div></div>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;padding:10px 12px;background:rgba(245,166,35,.08);border-radius:10px;border:1px solid rgba(245,166,35,.2)">
+      <div style="font-size:18px;flex-shrink:0">↔️</div>
+      <div><div style="font-size:10px;font-weight:700;color:#F5A623;letter-spacing:.06em;text-transform:uppercase;margin-bottom:1px">Keep eyes moving</div><div style="font-size:13px;font-weight:600">Left-right-left at intersections; never fixate</div></div>
+    </div>
+  </div>
+  <div style="text-align:center;font-size:11px;color:#8A8F9A;padding-top:4px">CC Driving Instruction · My Lesson Review · ccdrvn.com</div>
+</div>
+
+</div>
+<div id="dots"></div>
+<div id="nav">
+  <button class="btn" id="bp" disabled>← Back</button>
+  <button class="btn" id="bn">Next →</button>
+</div>
+</div>
+<script>
+const slides=[...document.querySelectorAll('.slide')];
+const total=slides.length;
+let cur=0;
+const ct=document.getElementById('ct'),pf=document.getElementById('pf'),bp=document.getElementById('bp'),bn=document.getElementById('bn'),de=document.getElementById('dots');
+slides.forEach((_,i)=>{const d=document.createElement('div');d.className='dot'+(i===0?' active':'');de.appendChild(d);});
+const dots=()=>de.querySelectorAll('.dot');
+function go(n){
+  if(n<0||n>=total)return;
+  const p=cur;
+  slides[p].classList.remove('active');slides[p].classList.add('out');
+  setTimeout(()=>slides[p].classList.remove('out'),350);
+  cur=n;
+  slides[cur].classList.add('active');
+  dots().forEach((d,i)=>d.classList.toggle('active',i===cur));
+  ct.textContent=`${cur+1} / ${total}`;
+  pf.style.width=`${(cur+1)/total*100}%`;
+  bp.disabled=cur===0;
+  bn.textContent=cur===total-1?'✓ Done':'Next →';
+  bn.classList.toggle('done',cur===total-1);
+}
+bn.addEventListener('click',()=>go(cur===total-1?0:cur+1));
+bp.addEventListener('click',()=>go(cur-1));
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();bn.click();}if(e.key==='ArrowLeft')go(cur-1);});
+let tx=0;
+document.getElementById('vp').addEventListener('touchstart',e=>{tx=e.touches[0].clientX;},{passive:true});
+document.getElementById('vp').addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-tx;if(Math.abs(dx)>50){dx<0?bn.click():go(cur-1);}},{passive:true});
+pf.style.width=`${1/total*100}%`;
+</script>
+</body>
+</html>
