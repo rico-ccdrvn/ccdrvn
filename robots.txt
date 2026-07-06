@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /portal.html
+Disallow: /practice.html
+
+Sitemap: https://ccdrvn.com/sitemap.xml
