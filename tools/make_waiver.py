@@ -122,20 +122,21 @@ class _Doc:
     def sig_row(self):
         self.ensure(70)
         self.y -= 26
-        c = self.c
-        c.setStrokeColor(INK)
-        c.setLineWidth(0.8)
         gap = 14
         x = MARGIN
-        for label, frac in [("Parent/guardian signature", 0.50),
-                            ("Printed name", 0.28), ("Date", 0.16)]:
+        for name, label, frac in [("signature", "Parent/guardian signature", 0.50),
+                                  ("printed_name", "Printed name", 0.28),
+                                  ("sig_date", "Date", 0.16)]:
             w = BODY_W * frac
-            c.line(x, self.y, x + w, self.y)
-            c.setFont(BODY_FONT, 7.5)
-            c.setFillColor(MUTED)
-            c.drawString(x, self.y - 10, label.upper())
+            self.c.acroForm.textfield(
+                name=name, x=x, y=self.y - 2, width=w, height=20,
+                borderStyle='underlined', borderWidth=0.8, borderColor=INK,
+                fillColor=None, fontName=BODY_FONT, fontSize=11, textColor=INK)
+            self.c.setFont(BODY_FONT, 7.5)
+            self.c.setFillColor(MUTED)
+            self.c.drawString(x, self.y - 12, label.upper())
             x += w + gap
-        self.y -= 30
+        self.y -= 34
 
     def save(self):
         self.c.save()
@@ -222,7 +223,9 @@ def build_waiver(path):
     d.para(
         "I confirm that I am the parent or legal guardian of the participant named "
         "above, that I have read and understood this document, and that I agree to it on "
-        "the participant's behalf.")
+        "the participant's behalf. If completing this form electronically, typing your "
+        "full name in the signature field constitutes your electronic signature under "
+        "Ontario's Electronic Commerce Act, 2000.")
     d.sig_row()
     d.save()
 

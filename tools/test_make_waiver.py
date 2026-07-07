@@ -9,6 +9,7 @@ from make_waiver import build_waiver
 EXPECTED_FIELDS = {
     "participant_name", "participant_dob", "licence_class",
     "guardian_name", "relationship", "guardian_email", "guardian_phone",
+    "signature", "printed_name", "sig_date",
 }
 
 EXPECTED_PHRASES = [
@@ -20,6 +21,7 @@ EXPECTED_PHRASES = [
     "gross negligence",
     "Severability",
     "parent or legal guardian",
+    "electronic signature",
 ]
 
 
