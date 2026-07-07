@@ -22,6 +22,7 @@ EXPECTED_PHRASES = [
     "Severability",
     "parent or legal guardian",
     "electronic signature",
+    "save the completed file",
 ]
 
 
@@ -53,3 +54,10 @@ def test_required_wording_present(tmp_path):
 def test_fits_two_pages(tmp_path):
     reader = pypdf.PdfReader(str(_build(tmp_path)))
     assert len(reader.pages) <= 2
+
+
+def test_need_appearances_set(tmp_path):
+    # Without this flag, forms saved by macOS Preview can look blank elsewhere.
+    reader = pypdf.PdfReader(str(_build(tmp_path)))
+    acroform = reader.trailer["/Root"]["/AcroForm"]
+    assert bool(acroform.get("/NeedAppearances")) is True

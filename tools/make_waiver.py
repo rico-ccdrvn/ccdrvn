@@ -45,6 +45,9 @@ class _Doc:
     def __init__(self, path):
         self.c = canvas.Canvas(path, pagesize=letter)
         self.c.setTitle("Parent/Guardian Consent & Waiver — CC Driving Instruction")
+        # macOS Preview saves filled forms without appearance streams; this flag
+        # tells other viewers to repaint field text so those forms don't look blank.
+        self.c.acroForm.extras['NeedAppearances'] = 'true'
         self._start_page()  # sets self.y
 
     def _start_page(self):
@@ -153,7 +156,9 @@ def build_waiver(path):
         "Please complete this form if the participant is under 18 years of age. A parent "
         "or legal guardian must sign before the participant's first recorded lesson. You "
         "can type into this form, or print it and fill it in by hand. Return it by email "
-        "to rico@ccdrvn.com or hand it to your instructor at the first lesson.",
+        "to rico@ccdrvn.com or hand it to your instructor at the first lesson. If you "
+        "fill it in on a phone or computer, save the completed file and attach the "
+        "saved copy — a form that isn't saved first arrives blank.",
         size=9, leading=12)
 
     d.heading("A. Participant & parent/guardian information")
