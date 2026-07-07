@@ -33,7 +33,8 @@ def _wrap(text, font, size, width):
         if stringWidth(trial, font, size) <= width:
             line = trial
         else:
-            lines.append(line)
+            if line:  # skip empty line when a single token exceeds the width
+                lines.append(line)
             line = word
     if line:
         lines.append(line)
@@ -44,8 +45,7 @@ class _Doc:
     def __init__(self, path):
         self.c = canvas.Canvas(path, pagesize=letter)
         self.c.setTitle("Parent/Guardian Consent & Waiver — CC Driving Instruction")
-        self.y = 0.0
-        self._start_page()
+        self._start_page()  # sets self.y
 
     def _start_page(self):
         c = self.c
@@ -79,7 +79,9 @@ class _Doc:
         self.y -= 22
 
     def heading(self, text):
-        self.ensure(46)
+        # 80pt guarantees a heading is never stranded at the bottom of a page
+        # without at least ~3 lines of following body text.
+        self.ensure(80)
         self.y -= 6
         self.c.setFillColor(INK)
         self.c.setFont(BOLD_FONT, 10.5)
