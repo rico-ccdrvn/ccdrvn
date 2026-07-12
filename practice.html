@@ -16,11 +16,14 @@
     .pp-note { width:100%; background:#0e0f12; color:#eee; border:1px solid #2a2d36; border-radius:6px; padding:.4rem; margin-top:.4rem; }
     .pp-strip { background:#1a1c22; border-radius:10px; padding:.6rem 1rem; font-size:.9rem; color:#bcc; }
     .pp-step { display:flex; gap:.5rem; align-items:flex-start; margin:.3rem 0; }
-    .pp-seehow-row { margin: 6px 0; }
-    .pp-seehow { display:inline-block; margin:2px 6px 2px 0; padding:4px 10px;
-                 background:#1f883d; color:#fff; text-decoration:none; border-radius:6px;
-                 font-size:13px; }
-    .pp-seehow:hover { background:#1a7332; }
+    .pp-doright { margin:.3rem 0 .3rem 1.4rem; padding:0; color:#cdd6e0; list-style-position:inside; }
+    .pp-outing-h { margin:1.4rem 0 .2rem; color:#9fb3c8; font-size:1.05rem; }
+    .pp-recap { color:#89a; font-size:.9rem; margin:.2rem 0 1rem; }
+    .pp-doright li { margin:.2rem 0; }
+    .pp-graph svg { width:100%; height:auto; display:block; }
+    .pp-legend { font-size:.8rem; color:#9fb3c8; margin-top:.3rem; }
+    .pp-legend span { display:inline-block; margin-right:.8rem; }
+    .pp-legend i { display:inline-block; width:10px; height:10px; border-radius:2px; margin-right:.3rem; }
   </style>
 </head>
 <body>
@@ -83,10 +86,10 @@
       const also = alsoSessions.length
         ? `<p style="color:#89a;font-size:.85rem">Also a focus on ${alsoSessions.map(esc).join(', ')}.</p>` : '';
       const note = esc(PlanStore.getNote(token, sid, d.drill_id));
-      const seeHow = (d.see_how || []).map(s =>
-        `<a class="pp-seehow" href="${esc(s.url)}" target="_blank" rel="noopener">See How: ${esc(s.title)} ↗</a>`
-      ).join(' ');
-      const seeHowRow = seeHow ? `<div class="pp-seehow-row">${seeHow}</div>` : '';
+      const doRight = (d.do_right || []).length
+        ? `<p><strong>Do it right:</strong></p><ul class="pp-doright">${
+            d.do_right.map(s => `<li>${esc(s)}</li>`).join('')}</ul>`
+        : '';
       const VALID_MASTERY = { Mastered: 1, Learning: 1, Struggling: 1 };
       const safeMastery = VALID_MASTERY[d.mastery_state] ? d.mastery_state : 'Learning';
       const card = document.createElement('div');
@@ -97,7 +100,7 @@
         <p><strong>Why this matters:</strong> ${esc(d.why)}</p>
         ${evidence ? `<p>${evidence}</p>` : ''}
         <p><strong>In the car:</strong></p>${steps}
-        ${seeHowRow}
+        ${doRight}
         <div class="pp-coach"><strong>For your coach:</strong> ${esc(d.parent_cue)}</div>
         <p><strong>Where to practice:</strong> ${esc(d.where)}</p>
         ${also}
@@ -119,6 +122,7 @@
         <p>${esc(active.headline)}</p>`;
       root.appendChild(head);
 
+      if (plans.length >= 2 || (plans[0] && plans[0].mastery)) window.__renderGraph(root, plans);
       window.__renderStrip(root, plans);
 
       if (active.doing_well) {
@@ -129,14 +133,123 @@
       }
       const earlier = {};
       history.forEach(p => (p.drills || []).forEach(d =>
-        (earlier[d.drill_id] = earlier[d.drill_id] || []).push(p.session_date)));
+        (earlier[d.skill] = earlier[d.skill] || []).push(p.session_date)));
 
-      (active.drills || []).forEach(d => root.appendChild(drillCard(token, sid, d, earlier[d.drill_id] || [])));
+      const byId = {};
+      (active.drills || []).forEach(d => { byId[d.drill_id] = d; });
+      const appendCard = d => root.appendChild(drillCard(token, sid, d, earlier[d.skill] || []));
+
+      const sched = Array.isArray(active.schedule) ? active.schedule : [];
+      if (sched.length) {
+        const placed = {};
+        sched.forEach(o => {
+          const drills = (o.drill_ids || []).map(i => byId[i]).filter(d => d && !placed[d.drill_id]);
+          if (!drills.length) return;
+          const h = document.createElement('h2');
+          h.className = 'pp-outing-h';
+          h.textContent = o.title || `Outing ${o.outing}`;
+          root.appendChild(h);
+          drills.forEach(d => { placed[d.drill_id] = 1; appendCard(d); });
+          if (o.recap) {
+            const r = document.createElement('p');
+            r.className = 'pp-recap';
+            r.textContent = o.recap;
+            root.appendChild(r);
+          }
+        });
+        (active.drills || []).filter(d => !placed[d.drill_id]).forEach(appendCard);
+      } else {
+        (active.drills || []).forEach(appendCard);
+      }
 
       const foot = document.createElement('p');
       foot.style.cssText = 'color:#789;font-size:.85rem;margin-top:1.5rem';
       foot.textContent = active.supervisor_notes;
       root.appendChild(foot);
+    };
+  </script>
+  <script>
+    // Skill display names for mastery-line legend (mirrors backend _RECS).
+    const PP_NAMES = { INT:'Intersections', TL:'Traffic Lights', LANE:'Lane Control',
+      SPACE:'Space Management', SPEED:'Speed Management', TR:'Turns', OBS:'Observation',
+      PARK:'Parking', HWY:'Highway', START:'Pre-Drive', SIGN:'Signs', GRADE:'Stop on Grade',
+      THREE:'Three-Point Turn', EMERG:'Emergency Stop', RAIL:'Railway', PED:'Pedestrians',
+      CYC:'Cyclists', STEER:'Steering', SMOOTH:'Smooth Control' };
+    const PP_COLORS = ['#3b82f6','#00c07f','#e0b341','#e06666','#a78bfa','#4dd0e1',
+                       '#f59e0b','#7dd87d','#f472b6','#94a3b8'];
+
+    window.__renderGraph = function (root, plans) {
+      try {
+        const asc = plans.slice().sort((a, b) =>
+          (a.session_date || '').localeCompare(b.session_date || ''));
+        const pts = asc.filter(p => typeof p.score === 'number');
+        if (!pts.length) return;
+
+        const W = 700, H = 240, L = 34, R = 10, T = 14, B = 28;
+        const n = asc.length;
+        const x = i => n === 1 ? (L + (W - L - R) / 2) : L + (W - L - R) * i / (n - 1);
+        const yScore = s => T + (H - T - B) * (1 - Math.max(0, Math.min(100, s)) / 100);
+        const idx = {};                       // session_date -> x index
+        asc.forEach((p, i) => { idx[p.session_date] = i; });
+
+        let g = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Progress graph">`;
+        // frame + pass line at 70
+        g += `<rect x="${L}" y="${T}" width="${W - L - R}" height="${H - T - B}" fill="none" stroke="#2a2d36"/>`;
+        g += `<line x1="${L}" x2="${W - R}" y1="${yScore(70)}" y2="${yScore(70)}" stroke="#666" stroke-dasharray="4 4"/>`;
+        g += `<text x="${L - 4}" y="${yScore(70) + 3}" fill="#789" font-size="10" text-anchor="end">70</text>`;
+        [0, 50, 100].forEach(v => {
+          g += `<text x="${L - 4}" y="${yScore(v) + 3}" fill="#556" font-size="10" text-anchor="end">${v}</text>`;
+        });
+        // x labels: first and last date (avoid clutter)
+        const lab = (i, anchor) => `<text x="${x(i)}" y="${H - 8}" fill="#789" font-size="10" text-anchor="${anchor}">${esc(asc[i].session_date || '')}</text>`;
+        g += lab(0, 'start');
+        if (n > 1) g += lab(n - 1, 'end');
+
+        // mastery lines (only plans carrying a snapshot)
+        const skills = {};
+        asc.forEach(p => {
+          if (p.mastery && typeof p.mastery === 'object')
+            Object.keys(p.mastery).forEach(k => { skills[k] = 1; });
+        });
+        const skillList = Object.keys(skills).sort();
+        const yM = m => T + (H - T - B) * (1 - Math.max(0, Math.min(1, m)));
+        const legend = [];
+        skillList.forEach((k, si) => {
+          const c = PP_COLORS[si % PP_COLORS.length];
+          const seg = [];
+          asc.forEach((p, i) => {
+            const v = p.mastery && p.mastery[k];
+            if (Array.isArray(v) && typeof v[0] === 'number') seg.push(`${x(i)},${yM(v[0])}`);
+          });
+          if (!seg.length) return;
+          if (seg.length === 1) {
+            const [px, py] = seg[0].split(',');
+            g += `<circle cx="${px}" cy="${py}" r="3" fill="${c}" opacity=".8"/>`;
+          } else {
+            g += `<polyline points="${seg.join(' ')}" fill="none" stroke="${c}" stroke-width="1.5" opacity=".8"/>`;
+          }
+          legend.push(`<span><i style="background:${c}"></i>${esc(PP_NAMES[k] || k)}</span>`);
+        });
+
+        // score line on top
+        const spts = pts.map(p => `${x(idx[p.session_date])},${yScore(p.score)}`);
+        if (spts.length === 1) {
+          const [px, py] = spts[0].split(',');
+          g += `<circle cx="${px}" cy="${py}" r="5" fill="#fff"/>`;
+        } else {
+          g += `<polyline points="${spts.join(' ')}" fill="none" stroke="#fff" stroke-width="2.5"/>`;
+          pts.forEach(p => {
+            g += `<circle cx="${x(idx[p.session_date])}" cy="${yScore(p.score)}" r="3.5" fill="#fff"/>`;
+          });
+        }
+        g += `<text x="${L + 4}" y="${T + 12}" fill="#eee" font-size="11">Score</text></svg>`;
+
+        const card = document.createElement('div');
+        card.className = 'pp-card pp-graph';
+        card.innerHTML = `<h3 style="margin-top:0">Progress</h3>${g}` +
+          (legend.length ? `<div class="pp-legend">${legend.join('')}</div>` : '');
+        root.appendChild(card);
+      } catch (e) { /* graph must never blank the drills below */ }
     };
   </script>
   <script>
