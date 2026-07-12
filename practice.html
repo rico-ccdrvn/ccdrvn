@@ -16,7 +16,9 @@
     .pp-note { width:100%; background:#0e0f12; color:#eee; border:1px solid #2a2d36; border-radius:6px; padding:.4rem; margin-top:.4rem; }
     .pp-strip { background:#1a1c22; border-radius:10px; padding:.6rem 1rem; font-size:.9rem; color:#bcc; }
     .pp-step { display:flex; gap:.5rem; align-items:flex-start; margin:.3rem 0; }
-    .pp-doright { margin:.3rem 0 .3rem 1.4rem; padding:0; color:#cdd6e0; }
+    .pp-doright { margin:.3rem 0 .3rem 1.4rem; padding:0; color:#cdd6e0; list-style-position:inside; }
+    .pp-outing-h { margin:1.4rem 0 .2rem; color:#9fb3c8; font-size:1.05rem; }
+    .pp-recap { color:#89a; font-size:.9rem; margin:.2rem 0 1rem; }
     .pp-doright li { margin:.2rem 0; }
   </style>
 </head>
@@ -128,7 +130,32 @@
       history.forEach(p => (p.drills || []).forEach(d =>
         (earlier[d.skill] = earlier[d.skill] || []).push(p.session_date)));
 
-      (active.drills || []).forEach(d => root.appendChild(drillCard(token, sid, d, earlier[d.skill] || [])));
+      const byId = {};
+      (active.drills || []).forEach(d => { byId[d.drill_id] = d; });
+      const appendCard = d => root.appendChild(drillCard(token, sid, d, earlier[d.skill] || []));
+
+      const sched = Array.isArray(active.schedule) ? active.schedule : [];
+      if (sched.length) {
+        const placed = {};
+        sched.forEach(o => {
+          const drills = (o.drill_ids || []).map(i => byId[i]).filter(Boolean);
+          if (!drills.length) return;
+          const h = document.createElement('h2');
+          h.className = 'pp-outing-h';
+          h.textContent = o.title || `Outing ${o.outing}`;
+          root.appendChild(h);
+          drills.forEach(d => { placed[d.drill_id] = 1; appendCard(d); });
+          if (o.recap) {
+            const r = document.createElement('p');
+            r.className = 'pp-recap';
+            r.textContent = o.recap;
+            root.appendChild(r);
+          }
+        });
+        (active.drills || []).filter(d => !placed[d.drill_id]).forEach(appendCard);
+      } else {
+        (active.drills || []).forEach(appendCard);
+      }
 
       const foot = document.createElement('p');
       foot.style.cssText = 'color:#789;font-size:.85rem;margin-top:1.5rem';
