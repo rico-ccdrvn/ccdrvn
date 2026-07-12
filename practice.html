@@ -138,7 +138,7 @@
       if (sched.length) {
         const placed = {};
         sched.forEach(o => {
-          const drills = (o.drill_ids || []).map(i => byId[i]).filter(Boolean);
+          const drills = (o.drill_ids || []).map(i => byId[i]).filter(d => d && !placed[d.drill_id]);
           if (!drills.length) return;
           const h = document.createElement('h2');
           h.className = 'pp-outing-h';
