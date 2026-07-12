@@ -16,11 +16,8 @@
     .pp-note { width:100%; background:#0e0f12; color:#eee; border:1px solid #2a2d36; border-radius:6px; padding:.4rem; margin-top:.4rem; }
     .pp-strip { background:#1a1c22; border-radius:10px; padding:.6rem 1rem; font-size:.9rem; color:#bcc; }
     .pp-step { display:flex; gap:.5rem; align-items:flex-start; margin:.3rem 0; }
-    .pp-seehow-row { margin: 6px 0; }
-    .pp-seehow { display:inline-block; margin:2px 6px 2px 0; padding:4px 10px;
-                 background:#1f883d; color:#fff; text-decoration:none; border-radius:6px;
-                 font-size:13px; }
-    .pp-seehow:hover { background:#1a7332; }
+    .pp-doright { margin:.3rem 0 .3rem 1.4rem; padding:0; color:#cdd6e0; }
+    .pp-doright li { margin:.2rem 0; }
   </style>
 </head>
 <body>
@@ -83,10 +80,10 @@
       const also = alsoSessions.length
         ? `<p style="color:#89a;font-size:.85rem">Also a focus on ${alsoSessions.map(esc).join(', ')}.</p>` : '';
       const note = esc(PlanStore.getNote(token, sid, d.drill_id));
-      const seeHow = (d.see_how || []).map(s =>
-        `<a class="pp-seehow" href="${esc(s.url)}" target="_blank" rel="noopener">See How: ${esc(s.title)} ↗</a>`
-      ).join(' ');
-      const seeHowRow = seeHow ? `<div class="pp-seehow-row">${seeHow}</div>` : '';
+      const doRight = (d.do_right || []).length
+        ? `<p><strong>Do it right:</strong></p><ul class="pp-doright">${
+            d.do_right.map(s => `<li>${esc(s)}</li>`).join('')}</ul>`
+        : '';
       const VALID_MASTERY = { Mastered: 1, Learning: 1, Struggling: 1 };
       const safeMastery = VALID_MASTERY[d.mastery_state] ? d.mastery_state : 'Learning';
       const card = document.createElement('div');
@@ -97,7 +94,7 @@
         <p><strong>Why this matters:</strong> ${esc(d.why)}</p>
         ${evidence ? `<p>${evidence}</p>` : ''}
         <p><strong>In the car:</strong></p>${steps}
-        ${seeHowRow}
+        ${doRight}
         <div class="pp-coach"><strong>For your coach:</strong> ${esc(d.parent_cue)}</div>
         <p><strong>Where to practice:</strong> ${esc(d.where)}</p>
         ${also}
@@ -129,9 +126,9 @@
       }
       const earlier = {};
       history.forEach(p => (p.drills || []).forEach(d =>
-        (earlier[d.drill_id] = earlier[d.drill_id] || []).push(p.session_date)));
+        (earlier[d.skill] = earlier[d.skill] || []).push(p.session_date)));
 
-      (active.drills || []).forEach(d => root.appendChild(drillCard(token, sid, d, earlier[d.drill_id] || [])));
+      (active.drills || []).forEach(d => root.appendChild(drillCard(token, sid, d, earlier[d.skill] || [])));
 
       const foot = document.createElement('p');
       foot.style.cssText = 'color:#789;font-size:.85rem;margin-top:1.5rem';
