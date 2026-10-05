@@ -960,3 +960,58 @@ footer {
   .hero-text h1 { font-size: 2.4rem; }
   .modal { padding: 1.75rem 1.25rem; }
 }
+
+
+/* ═══════════════════════════════════════
+   CREDENTIAL BADGE + ABOUT
+══════════════════════════════════════ */
+.credential-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-top: 1.5rem;
+  padding: 0.5rem 0.9rem;
+  border: 1px solid var(--border-h);
+  border-radius: 999px;
+  color: var(--text);
+  font-size: 0.85rem;
+  text-decoration: none;
+  transition: border-color 0.2s, background 0.2s;
+}
+.credential-badge:hover { border-color: var(--gold); background: var(--bg-card); }
+.credential-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--gold); flex-shrink: 0;
+}
+
+.about-section {
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+}
+.about-body {
+  max-width: 680px;
+  margin: 0 auto;
+  color: var(--text-muted);
+  line-height: 1.75;
+  font-size: 1rem;
+}
+.about-body > p { margin-bottom: 1.25rem; }
+.about-credential {
+  margin-top: 2rem;
+  padding: 1.5rem 1.75rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--gold);
+  border-radius: var(--r);
+}
+.about-credential p { margin-bottom: 0.75rem; color: var(--text); }
+.about-credential .about-credential-label {
+  margin-bottom: 0.4rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+.about-credential a { color: var(--gold); font-weight: 600; text-decoration: none; }
+.about-credential a:hover { text-decoration: underline; }
